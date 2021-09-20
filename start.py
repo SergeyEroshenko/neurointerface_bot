@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
+import os
+from glob import glob
+import random
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
 from content import help_text, start_text, button_names
 from bot_token import TOKEN
+from settings import DATA_PATH
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -20,30 +24,31 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 def question(update: Update, context: CallbackContext) -> None:
     """Send a message when the button is pressed."""
-    update.message.reply_photo(photo=open("./data/img1.jpeg", "rb"))
+    files_list = sorted(glob(os.path.join(DATA_PATH, "*.*")))
+    file = random.choice(files_list)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(file, "rb"))
     keyboard = [
         [
-            InlineKeyboardButton(button_names[0], callback_data='0'),
-            InlineKeyboardButton(button_names[1], callback_data='1'),
+            InlineKeyboardButton(button_names[0], callback_data=button_names[0]),
+            InlineKeyboardButton(button_names[1], callback_data=button_names[1]),
         ],
         [
-            InlineKeyboardButton(button_names[2], callback_data='2'),
-            InlineKeyboardButton(button_names[3], callback_data='3'),
+            InlineKeyboardButton(button_names[2], callback_data=button_names[2]),
+            InlineKeyboardButton(button_names[3], callback_data=button_names[3]),
         ]
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    update.message.reply_text("->", reply_markup=reply_markup)
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text="->", reply_markup=reply_markup)
 
 
 def button(update: Update, context: CallbackContext) -> None:
     """Parses the CallbackQuery and updates the message text."""
-    # query = update.callback_query
+    query = update.callback_query
+    query.answer()
+    query.edit_message_text(text=f"Selected option: {query.data}")
 
-    # # CallbackQueries need to be answered, even if no notification to the user is needed
-    # # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
-    # query.answer()
-    # query.edit_message_text(text=f"Selected option: {query.data}")
     question(update, context)
 
 
