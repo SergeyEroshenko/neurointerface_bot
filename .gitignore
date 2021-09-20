@@ -1,0 +1,8 @@
+/__pycache__/
+.venv/
+data/
+
+/.DS_Store
+
+token.py
+bot_token.py
