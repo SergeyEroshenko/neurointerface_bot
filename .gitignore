@@ -5,5 +5,7 @@ data/
 /.DS_Store
 
 info.log
-token.py
-bot_token.py
+security_data.py
+
+*.session
+*.session-journal

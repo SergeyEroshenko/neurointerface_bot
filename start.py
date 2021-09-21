@@ -6,9 +6,9 @@ from time import sleep
 import random
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
 from content import help_text, start_text, button_names
-from bot_token import TOKEN
+from security_data import BOT_TOKEN as TOKEN
 from settings import DATA_PATH
 
 
