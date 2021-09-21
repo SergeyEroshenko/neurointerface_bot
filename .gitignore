@@ -4,5 +4,6 @@ data/
 
 /.DS_Store
 
+info.log
 token.py
 bot_token.py

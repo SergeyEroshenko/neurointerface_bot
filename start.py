@@ -2,6 +2,7 @@
 
 import os
 from glob import glob
+from time import sleep
 import random
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -47,8 +48,8 @@ def button(update: Update, context: CallbackContext) -> None:
     """Parses the CallbackQuery and updates the message text."""
     query = update.callback_query
     query.answer()
-    query.edit_message_text(text=f"Selected option: {query.data}")
-
+    query.edit_message_text(text=f"Вы нажали: {query.data}")
+    sleep(1)
     question(update, context)
 
 
