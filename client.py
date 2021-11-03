@@ -1,10 +1,8 @@
 import os
-import sys
-import time
 import asyncio
 import random
 
-from telethon import TelegramClient, events, utils
+from telethon import TelegramClient, events
 from security_data import CLIENT_ID, CLIENT_HASH
 from settings import BOT_NAME
 
