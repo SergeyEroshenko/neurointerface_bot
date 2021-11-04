@@ -9,3 +9,6 @@ security_data.py
 
 *.session
 *.session-journal
+*.pyc
+
+draft.py
