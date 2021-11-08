@@ -1,41 +1,11 @@
 import asyncio
-import re
 import json
-import ciso8601
-import websockets
-from time import strptime
 from typing import List
-from ..core import Observer, ConcreteSubject
-
-
-class BaseConnector(ConcreteSubject):
-
-    uri: str = None
-
-    def __init__(self):
-        self.connection = None
-        self._observers: List[Observer] = []
-        self._state: str = None
-
-        if self.uri is None:
-            raise ValueError(
-                "self.uri not defined. Pleas define is as ws://host:port")
-
-    async def connect(self):
-        # открываем соединение
-        self.connection = await websockets.connect(
-            uri=self.uri,
-        )
-
-    async def handler(self):
-        # получатель собщений из установленного соединения
-        async for message in self.connection:
-            self._state = message
-            self.notify()
+from ..core import Observer, BaseConnector
 
 
 class Connector(BaseConnector):
-    
+
     uri: str = "ws://127.0.0.1:1336"
 
     def __init__(self, device_id: str, freq: int):
@@ -74,7 +44,7 @@ class Connector(BaseConnector):
         msg = json.dumps({
             "command": "startDevice",
             "SN": sn,
-            "channels": channels, 
+            "channels": channels,
             "index": index,
             })
         await self.connection.send(msg)
@@ -119,8 +89,6 @@ class Connector(BaseConnector):
     async def get_data_storage_time(self):
         msg = json.dumps({"command": "getDataStorageTime"})
         await self.connection.send(msg)
-
-
 
     async def subscribe_rhytms(self):
         msg = json.dumps({"command": "rhythms"})

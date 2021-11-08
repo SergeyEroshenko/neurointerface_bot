@@ -42,10 +42,10 @@ class ConcreteSubject(Subject):
 
     def attach(self, observer: Observer):
         self._observers.append(observer)
-    
+
     def detach(self, observer: Observer):
         self._observers.remove(observer)
-    
+
     def notify(self):
         if self._observers is None:
             raise Exception(

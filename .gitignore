@@ -3,6 +3,7 @@
 data/
 
 /.DS_Store
+settings.json
 
 info.log
 security_data.py
