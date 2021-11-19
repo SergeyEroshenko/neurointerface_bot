@@ -22,6 +22,10 @@ class BaseConnector(ConcreteSubject):
             uri=self.uri,
         )
 
+    async def disconnect(self):
+        # закрываем соединение
+        await self.connection.close()
+
     async def handler(self):
         # получатель собщений из установленного соединения
         async for message in self.connection:

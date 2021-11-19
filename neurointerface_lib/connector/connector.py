@@ -8,9 +8,10 @@ class Connector(BaseConnector):
 
     uri: str = "ws://127.0.0.1:1336"
 
-    def __init__(self, device_id: str, freq: int):
+    def __init__(self, device_id: str, freq: int, window_size: int = 1):
         self.device_id = device_id
         self.freq = freq
+        self.window_size = window_size
 
         self.connection = None
         self._observers: List[Observer] = []
@@ -90,8 +91,108 @@ class Connector(BaseConnector):
         msg = json.dumps({"command": "getDataStorageTime"})
         await self.connection.send(msg)
 
-    async def subscribe_rhytms(self):
+    async def get_filters(self):
+        msg = json.dumps({"command": "getFilters"})
+        await self.connection.send(msg)
+
+    async def set_filters(self):
+        msg = json.dumps({"command": "setFilters"})
+        await self.connection.send(msg)
+
+    async def set_lpf(self, value: int):
+        msg = json.dumps({
+            "command": "setLPF",
+            "value": value
+            })
+        await self.connection.send(msg)
+
+    async def set_bsf(self, value: int):
+        msg = json.dumps({
+            "command": "setBSF",
+            "value": value
+            })
+        await self.connection.send(msg)
+
+    async def set_hpf(self, value: int):
+        msg = json.dumps({
+            "command": "setHPF",
+            "value": value
+            })
+        await self.connection.send(msg)
+
+    async def filtered_data(self):
+        msg = json.dumps({"command": "filteredData"})
+        await self.connection.send(msg)
+
+    async def grab_filtered_data(self):
+        msg = json.dumps({"command": "grabFilteredData"})
+        await self.connection.send(msg)
+
+    async def raw_data(self):
+        msg = json.dumps({"command": "rawData"})
+        await self.connection.send(msg)
+
+    async def grab_raw_data(self):
+        msg = json.dumps({"command": "grabRawData"})
+        while True:
+            await self.connection.send(msg)
+            await asyncio.sleep(1/self.frew)
+
+    async def add_edf_annotation(self, duration: int, pos: int, text: str):
+        msg = json.dumps({
+            "command": "setHPF",
+            "duration": duration,
+            "pos": pos,
+            "text": text
+            })
+        await self.connection.send(msg)
+
+    async def spectrum(self):
+        msg = json.dumps({"command": "spectrum"})
+        while True:
+            await self.connection.send(msg)
+            await asyncio.sleep(self.window_size)
+
+    async def spectrum_frequencies(self):
+        msg = json.dumps({"command": "spectrumFrequencies"})
+        while True:
+            await self.connection.send(msg)
+            await asyncio.sleep(self.window_size)
+
+    async def rhythms(self):
         msg = json.dumps({"command": "rhythms"})
+        while True:
+            await self.connection.send(msg)
+            await asyncio.sleep(1/self.freq)
+
+    async def rhythms_history(self):
+        msg = json.dumps({"command": "rhythmsHistory"})
+        while True:
+            await self.connection.send(msg)
+            await asyncio.sleep(self.window_size)
+
+    async def meditation(self):
+        msg = json.dumps({"command": "meditation"})
+        while True:
+            await self.connection.send(msg)
+            await asyncio.sleep(1/self.freq)
+
+    async def meditation_history(self):
+        msg = json.dumps({"command": "meditationHistory"})
+        await self.connection.send(msg)
+
+    async def concentration(self):
+        msg = json.dumps({"command": "concentration"})
+        while True:
+            await self.connection.send(msg)
+            await asyncio.sleep(1/self.freq)
+
+    async def concentration_history(self):
+        msg = json.dumps({"command": "concentrationHistory"})
+        await self.connection.send(msg)
+
+    async def bci(self):
+        msg = json.dumps({"command": "bci"})
         while True:
             await self.connection.send(msg)
             await asyncio.sleep(1/self.freq)
