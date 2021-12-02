@@ -84,11 +84,14 @@ class DBWriter(Observer):
                 data.to_dict('records')
                 )
         elif channel == "rhythmshistory":
-            data = message["history"]
+            try:
+                data = message["history"]
+            except:
+                err = message['error']
+                raise Exception(err)
             data = self.parse_rhythms_history(data)
-            print(data.shape)
-            print(data.reset_index().to_dict('records')[0].keys())
-            header = ["timestamp DateTime"]\
+
+            header = ["timestamp DateTime64(3)"]\
                 + [f"{name} Float32" for name in data.columns]
             header = ", ".join(header)
             self.client.execute((
@@ -97,10 +100,10 @@ class DBWriter(Observer):
                 f"( {header} ) "
                 "ENGINE = MergeTree ORDER BY timestamp"
             ))
-            self.client.execute(
+            print(data)
+            self.client.insert_dataframe(
                 f"INSERT INTO {self.table_params}_rhythmsHistory VALUES",
-                data.reset_index().to_dict('records')
-                )
+                data.reset_index())
 
     @staticmethod
     def parse_rhythms(data):
@@ -132,5 +135,4 @@ class DBWriter(Observer):
             time_point.name = timestamp
             parsed_data = parsed_data.append(time_point)
         parsed_data.index.name = 'timestamp'
-        print(parsed_data.index[0])
         return parsed_data

@@ -167,9 +167,12 @@ class Connector(BaseConnector):
 
     async def rhythms_history(self):
         msg = json.dumps({"command": "rhythmsHistory"})
-        while True:
-            await self.connection.send(msg)
-            await asyncio.sleep(self.window_size)
+        try:
+            while True:
+                await self.connection.send(msg)
+                await asyncio.sleep(self.window_size)
+        except asyncio.CancelledError:
+            pass
 
     async def meditation(self):
         msg = json.dumps({"command": "meditation"})
