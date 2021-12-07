@@ -1,7 +1,8 @@
 /__pycache__/
-venv/
+.venv/
 data/
 .python-version
+*.json
 
 /.DS_Store
 /.idea
