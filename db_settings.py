@@ -12,3 +12,8 @@ db_conn_params = {
 #     "password": "",
 #     "settings": {"use_numpy": True}
 # }
+
+label_desc = {
+    "0": "walking",
+    "1": "other activity",
+}
