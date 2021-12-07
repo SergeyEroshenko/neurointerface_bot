@@ -1,16 +1,16 @@
 import websockets
-from typing import List
-from .observer import ConcreteSubject, Observer
+from typing import List, Optional
+from .observer import Subject, Observer
 
 
-class BaseConnector(ConcreteSubject):
+class BaseConnector(Subject):
 
-    uri: str = None
+    uri: Optional[str] = None
 
     def __init__(self):
         self.connection = None
         self._observers: List[Observer] = []
-        self._state: str = None
+        self._state: Optional[str] = None
 
         if self.uri is None:
             raise ValueError(
