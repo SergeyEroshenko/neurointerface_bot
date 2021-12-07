@@ -11,8 +11,8 @@ from clickhouse_driver import Client
 class Parser(Observer):
 
     def update(self, subject: Subject):
-        message: str = subject._state
-        message: Dict = json.loads(message)
+        state: str = subject._state
+        message: Dict = json.loads(state)
         self.parse(message)
 
     def parse(self, message: Dict):
@@ -32,8 +32,8 @@ class Parser(Observer):
         timestamp = timestamp.replace("-", "T")
         timestamp = re.sub(r"\.", "-", timestamp, 2)
         timestamp = re.sub(r"\.", ":", timestamp, 2)
-        timestamp = ciso8601.parse_datetime(timestamp).timestamp()
-        return timestamp
+        timestamp_float = ciso8601.parse_datetime(timestamp).timestamp()
+        return timestamp_float
 
 
 class DBWriter(Observer):
@@ -50,8 +50,8 @@ class DBWriter(Observer):
         # self.check_tables()
 
     def update(self, subject: Subject):
-        message: str = subject._state
-        message: Dict = json.loads(message)
+        state: str = subject._state
+        message: Dict = json.loads(state)
         self.parse(message)
 
     # def check_tables(self):
@@ -86,14 +86,14 @@ class DBWriter(Observer):
         elif channel == "rhythmshistory":
             try:
                 data = message["history"]
-            except:
+            except Exception:                   # уточнить ошибку
                 err = message['error']
                 raise Exception(err)
             data = self.parse_rhythms_history(data)
 
-            header = ["timestamp DateTime64(3)"]\
+            headers_list = ["timestamp DateTime64(3)"]\
                 + [f"{name} Float32" for name in data.columns]
-            header = ", ".join(header)
+            header = ", ".join(headers_list)
             self.client.execute((
                 "CREATE TABLE IF NOT EXISTS "
                 f"{self.table_params}_rhythmsHistory "
