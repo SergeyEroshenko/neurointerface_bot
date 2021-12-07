@@ -1,9 +1,20 @@
 import asyncio
-from argparse import ArgumentParser
+# import typing as tp
+import time
+from beepy import beep
 from neurointerface_lib.connector import Connector
 from neurointerface_lib.parser import Parser, DBWriter
 from db_settings import db_conn_params
 from clickhouse_driver import Client
+from start_args_parse import args_parser
+
+
+def timer_beeper(t: int = 3):
+    print('Start in ', end='', flush=True)
+    for i in range(t, 0, -1):
+        print(i, end='... ', flush=True)
+        time.sleep(1)
+    beep(3)
 
 
 async def inspector(time: int):
@@ -20,7 +31,7 @@ async def inspector(time: int):
             print(task_name, " is closed. ", len(list(asyncio.all_tasks())))
         await asyncio.sleep(0.01)
     list(asyncio.all_tasks())[0].cancel()
-    
+
 
 async def main(human_id, label):
     conn = Connector(device_id="0446", freq=5)
@@ -42,17 +53,12 @@ async def main(human_id, label):
 
 
 if __name__ == '__main__':
-    argparser = ArgumentParser()
-    argparser.add_argument("--id", help="Human id")
-    argparser.add_argument(
-        "--label", help="Label for data sample. Coded action name.")
-    args = argparser.parse_args()
-    human_id = args.id
-    label = args.label
-
-    client = Client(**db_conn_params)
+    human_id, label = args_parser()
+    time.sleep(3)
+    # client = Client(**db_conn_params)
     database_name = f"human_{human_id}"
-    client.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-    client.disconnect()
+    # client.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
+    # client.disconnect()
     print(f"Database name is: {database_name}\nAction label is: {label}")
-    asyncio.run(main(human_id, label))
+    timer_beeper(5)
+    # asyncio.run(main(human_id, label))
