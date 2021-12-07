@@ -1,6 +1,6 @@
 import asyncio
 import json
-from typing import List
+from typing import List, Optional
 from ..core import Observer, BaseConnector
 
 
@@ -15,7 +15,7 @@ class Connector(BaseConnector):
 
         self.connection = None
         self._observers: List[Observer] = []
-        self._state: str = None
+        self._state: Optional[str] = None
 
     async def start_search(self):
         msg = json.dumps({"command": "startSearch"})
