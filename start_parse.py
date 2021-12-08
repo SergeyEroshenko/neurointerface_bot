@@ -36,7 +36,7 @@ async def main(human_id, label):
         conn.handler(),
         conn.rhythms_history(),
         # conn.rhythms(),
-        inspector(time=10)
+        inspector(time=1)
     ]
     await asyncio.gather(*tasks)
 
