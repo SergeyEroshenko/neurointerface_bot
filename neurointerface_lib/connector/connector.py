@@ -1,21 +1,45 @@
 import asyncio
 import json
 from typing import List, Optional
-from ..core import Observer, BaseConnector
+
+from neurointerface_lib.core.observer import Subject
+from ..core import BaseConnector
 
 
 class Connector(BaseConnector):
 
     uri: str = "ws://127.0.0.1:1336"
 
-    def __init__(self, device_id: str, freq: int, window_size: int = 1):
-        self.device_id = device_id
-        self.freq = freq
-        self.window_size = window_size
+    def __init__(
+        self, device_id: str,
+        rhytm_freq: int = 5,
+        raw_freq: int = 125,
+        parser: Optional[Subject] = None,
+        window_size: int = 1,
+    ) -> None:
 
-        self.connection = None
-        self._observers: List[Observer] = []
-        self._state: Optional[str] = None
+        super().__init__()
+        self.device_id = device_id
+        self.rhytm_freq = rhytm_freq
+        self.raw_freq = raw_freq
+        self.window_size = window_size
+        self.parser = parser
+        self._data_storage_time = 10
+
+        try:
+            getattr(self.parser, 'raw_freq')
+            setattr(self.parser, 'raw_freq', self.raw_freq)
+        except AttributeError:
+            pass
+
+    async def handler(self):
+        if self.parser is None:
+            return await super().handler()
+        else:
+            async for message in self.connection:
+                self._state = message
+                self.parser.parse(self._state)
+                # self.notify()
 
     async def start_search(self):
         msg = json.dumps({"command": "startSearch"})
@@ -78,9 +102,11 @@ class Connector(BaseConnector):
 
     async def disable_data_grab_mode(self):
         msg = json.dumps({"command": "disableDataGrabMode"})
+        print("disableDataGrabMode")
         await self.connection.send(msg)
 
     async def set_data_storage_time(self, value: int):
+        self._data_storage_time = int(value)
         msg = json.dumps({
             "command": "setDataStorageTime",
             "value": value
@@ -136,7 +162,7 @@ class Connector(BaseConnector):
         msg = json.dumps({"command": "grabRawData"})
         while True:
             await self.connection.send(msg)
-            await asyncio.sleep(1/self.frew)
+            await asyncio.sleep(self._data_storage_time)
 
     async def add_edf_annotation(self, duration: int, pos: int, text: str):
         msg = json.dumps({
@@ -163,7 +189,7 @@ class Connector(BaseConnector):
         msg = json.dumps({"command": "rhythms"})
         while True:
             await self.connection.send(msg)
-            await asyncio.sleep(1/self.freq)
+            await asyncio.sleep(1/self.rhytm_freq)
 
     async def rhythms_history(self):
         msg = json.dumps({"command": "rhythmsHistory"})
@@ -178,7 +204,7 @@ class Connector(BaseConnector):
         msg = json.dumps({"command": "meditation"})
         while True:
             await self.connection.send(msg)
-            await asyncio.sleep(1/self.freq)
+            await asyncio.sleep(1/self.rhytm_freq)
 
     async def meditation_history(self):
         msg = json.dumps({"command": "meditationHistory"})
@@ -188,7 +214,7 @@ class Connector(BaseConnector):
         msg = json.dumps({"command": "concentration"})
         while True:
             await self.connection.send(msg)
-            await asyncio.sleep(1/self.freq)
+            await asyncio.sleep(1/self.rhytm_freq)
 
     async def concentration_history(self):
         msg = json.dumps({"command": "concentrationHistory"})
@@ -198,4 +224,4 @@ class Connector(BaseConnector):
         msg = json.dumps({"command": "bci"})
         while True:
             await self.connection.send(msg)
-            await asyncio.sleep(1/self.freq)
+            await asyncio.sleep(1/self.rhytm_freq)
