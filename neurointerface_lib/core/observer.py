@@ -1,6 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Any, List
 
 
 class Observer(ABC):
@@ -9,7 +9,7 @@ class Observer(ABC):
     используют для оповещения своих подписчиков.
     """
     @abstractmethod
-    def update(self, subject: Subject):
+    def update(self, message: Any):
         """
         Получить обновление от субъекта.
         """
@@ -19,8 +19,8 @@ class Observer(ABC):
 class Subject(ABC):
 
     def __init__(self) -> None:
-        self._observers: List[Observer]
-        self._state: str
+        self._observers: List[Observer] = []
+        self._state: Any = ""
 
     def attach(self, observer: Observer):
         self._observers.append(observer)
@@ -29,11 +29,11 @@ class Subject(ABC):
         self._observers.remove(observer)
 
     def notify(self):
-        if self._observers is None:
+        if len(self._observers) == 0:
             raise Exception(
                 "Subject without Observers. Attach, please.")
         for observer in self._observers:
-            observer.update(self)
+            observer.update(self._state)
 
     # @abstractmethod
     # def attach(self, observer: Observer):
